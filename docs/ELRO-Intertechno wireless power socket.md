@@ -1,0 +1,57 @@
+# ELRO/Intertechno wireless power socket
+
+A [Brennenstuhl RCS 1000 N Comfort](http://www.brennenstuhl.de/de-DE/steckdosenleisten-schaltgeraete-und-adapter/funkschalt-set/funkschalt-set-rcs-1000-n-comfort.html) was used for reverse engineering of the Intertechno codes.
+The ELRO/Intertechno codes are used by many different brands: [Intertechno Code Berechnung](http://www.fhemwiki.de/wiki/Intertechno_Code_Berechnung).
+A tool to calculate the bitcodes is available here: [Intertechno / ELRO DIP-Schalter Berechnung](http://isn-systems.com/tools/it2elro/).
+The API uses the term ELRO, because ELRO seems to be the first / most popular brand that uses a DIP switch.
+
+## Brennenstuhl RCS 1000 N Comfort
+
+Here are the training results for all buttons (A-B, on and off).
+Many training results didn't even work.
+Also for the working results, the start sequence looks always a little bit different.
+This means there could be a difference for edge cases.
+The first working start sequence was used in the code.
+If another sequence works better for you, please open an issue!
+
+### A 00000:01111
+
+#### on
+/command?XC_FNC=Send2&code=190800810005001903004500F800E60059004509B600000000000000000000000000010001000100010000000102&ir=01&type=CODE
+
+#### off
+/command?XC_FNC=Send2&code=190800810005001903004500F900E70059004509B200000000000000000000000000010001000100010001000002&ir=01&type=CODE
+
+### B 00000:10111
+
+#### on
+/command?XC_FNC=Send2&code=190800810005000803003E00FA00E001A100E00B9F0000010101000002&ir=01&type=CODE
+/command?XC_FNC=Send2&code=190800810005000C070083005B004400F800D100A0002600F400D1021100D1005300D10A3B000102030400010205050206&ir=01&type=CODE
+
+#### off
+/command?XC_FNC=Send2&code=190800810005001405004100FC0041024400E4005300E4019B00E40A6F0000010000000000000002000000030303000004&ir=01&type=CODE
+/command?XC_FNC=Send2&code=19080081000500150B004400FA0044023C002D010300690026004402E70044016F006D01B400530026004401DF00260026004409B700000102020000000000030405060708090106000A&ir=01&type=CODE
+
+### C 00000:11011
+
+#### on
+
+/command?XC_FNC=Send2&code=190800810005000A0400380105004100FE0038023C0038038400000001010000000203&ir=01&type=CODE
+/command?XC_FNC=Send2&code=190800810005000804005B004400FA00E6005B00E5390800FA0001020202020003&ir=01&type=CODE
+
+#### off
+
+/command?XC_FNC=Send2&code=190800810005001903004400FA00E5005B004409B700000000000000000000000100010000000100010000000102&ir=01&type=CODE
+/command?XC_FNC=Send2&code=190800810005001005004101010041023600E5019A00E5005C004109BC00010000010001020301000202020004&ir=01&type=CODE
+
+### D 00000:11101
+
+#### on
+
+/command?XC_FNC=Send2&code=190800810005001608003E010100CA006D0026012000CA01F500CA002B003E02A700810063003E09CB00000000000000000000010203040005060000000107&ir=01&type=CODE
+/command?XC_FNC=Send2&code=190800810005000703003C024200DF019400DF042A00000000000102&ir=01&type=CODE
+
+#### off
+
+/command?XC_FNC=Send2&code=190800810005001208003F0241003F0108002602470026002F002600AB003F004F00260117003F037E000101010101010201030400010505010607&ir=01&type=CODE
+/command?XC_FNC=Send2&code=190800810005000B05003F0100003F023A00E5019A00E5005A003F037E0001000001000000020304&ir=01&type=CODE
