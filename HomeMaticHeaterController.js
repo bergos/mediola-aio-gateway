@@ -8,7 +8,7 @@ class HomeMaticHeaterController {
     this.id = id
   }
 
-  status () {
+  get () {
     return this.gateway.getState(this.id).then((result) => {
       let state = result.state.split(':')
 
