@@ -16,9 +16,9 @@ class ElroPowerSocket {
   put (input) {
     let command = -1
 
-    if (input.state === context.on) {
+    if (input.state === context.On) {
       command = 1
-    } else if (input.state === context.off) {
+    } else if (input.state === context.Off) {
       command = 0
     }
 

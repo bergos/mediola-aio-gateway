@@ -1,11 +1,11 @@
 'use strict'
 
 let context = {
+  On: 'http://ns.bergnet.org/dark-horse#On',
+  Off: 'http://ns.bergnet.org/dark-horse#Off',
   desiredTemperature: 'http://ns.bergnet.org/dark-horse#desiredTemperature',
   humidity: 'http://ns.bergnet.org/dark-horse#humidity',
   lowBatteryPower: 'http://ns.bergnet.org/dark-horse#lowBatteryPower',
-  on: 'http://ns.bergnet.org/dark-horse#on',
-  off: 'http://ns.bergnet.org/dark-horse#off',
   state: {
     '@id': 'http://ns.bergnet.org/dark-horse#state',
     '@type': '@id'
