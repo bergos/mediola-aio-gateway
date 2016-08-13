@@ -1,6 +1,6 @@
 {
   "name": "mediola-aio-gateway",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Mediola AIO Gateway API",
   "main": "index.js",
   "scripts": {
