@@ -16,12 +16,18 @@ class HomeMaticTemperatureSensor {
         return Promise.reject(new Error('timeout'))
       }
 
+      var temperature = parseInt(state[0], 16)
+
+      if (temperature & 0x4000) {
+        temperature -= 0x8000
+      }
+
       return {
         '@context': context,
         '@id': this.id,
         lowBatteryPower: state[2] === 0xfe,
         humidity: parseInt(state[1], 16),
-        temperature: parseInt(state[0], 16) / 10.0
+        temperature: temperature / 10.0
       }
     })
   }
