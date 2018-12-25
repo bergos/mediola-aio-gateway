@@ -1,5 +1,3 @@
-'use strict'
-
 const context = require('./context')
 
 class HomeMaticTemperatureSensor {
@@ -10,7 +8,7 @@ class HomeMaticTemperatureSensor {
 
   get () {
     return this.gateway.getState(this.id).then((result) => {
-      let state = result.state.split(':')
+      const state = result.state.split(':')
 
       if (state[2] === 0xff) {
         return Promise.reject(new Error('timeout'))

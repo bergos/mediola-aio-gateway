@@ -1,7 +1,5 @@
-'use strict'
-
-let fetch = require('isomorphic-fetch')
-let url = require('url')
+const fetch = require('isomorphic-fetch')
+const url = require('url')
 
 class Gateway {
   constructor (url, options) {
@@ -12,9 +10,9 @@ class Gateway {
   }
 
   parseResponse (response) {
-    let statusMatch = response.match(Gateway.statusRegExp)
+    const statusMatch = response.match(Gateway.statusRegExp)
+    const status = statusMatch[0]
 
-    let status = statusMatch[0]
     let result = response.substr(status.length)
 
     if (status === '{XC_SUC}') {
@@ -29,7 +27,7 @@ class Gateway {
   }
 
   sendCommand (command) {
-    let commandUrl = url.resolve(this.url, 'command?' + Gateway.buildQuery(command))
+    const commandUrl = url.resolve(this.url, 'command?' + Gateway.buildQuery(command))
 
     return this.fetch(commandUrl).then((res) => {
       return res.text()

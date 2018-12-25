@@ -4,7 +4,7 @@
   "description": "Mediola AIO Gateway API",
   "main": "index.js",
   "scripts": {
-    "lint": "standard"
+    "test": "standard"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
-    "standard": "^7.1.2"
+    "standard": "^12.0.1"
   },
   "readmeFilename": "README.md"
 }

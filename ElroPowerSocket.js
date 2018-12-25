@@ -1,5 +1,3 @@
-'use strict'
-
 const context = require('./context')
 
 class ElroPowerSocket {

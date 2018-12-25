@@ -1,9 +1,7 @@
 const Gateway = require('../Gateway')
 
-let gateway = new Gateway('http://192.168.1.24')
+const gateway = new Gateway('http://192.168.1.24')
 
-gateway.getStates().then((result) => {
+gateway.getStates().then(result => {
   console.log(JSON.stringify(result, null, ' '))
-}).catch((err) => {
-  console.error(err.stack || err.message)
-})
+}).catch(err => console.error(err))

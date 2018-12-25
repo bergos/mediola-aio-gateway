@@ -1,12 +1,10 @@
 const Gateway = require('../Gateway')
 
-let gateway = new Gateway('http://192.168.1.24')
+const gateway = new Gateway('http://192.168.1.24')
 
 gateway.sendCommand({
   'XC_FNC': 'GetStates',
   'config': '1'
-}).then(function (result) {
+}).then(result => {
   console.log(result)
-}).catch(function (err) {
-  console.error(err.stack || err.message)
-})
+}).catch(err => console.error(err))

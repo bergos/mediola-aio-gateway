@@ -1,6 +1,4 @@
-'use strict'
-
-let context = {
+const context = {
   On: 'http://ns.bergnet.org/dark-horse#On',
   Off: 'http://ns.bergnet.org/dark-horse#Off',
   desiredTemperature: 'http://ns.bergnet.org/dark-horse#desiredTemperature',
