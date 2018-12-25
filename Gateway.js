@@ -1,53 +1,42 @@
-const fetch = require('isomorphic-fetch')
+const defaultFetch = require('isomorphic-fetch')
 const url = require('url')
 
 class Gateway {
-  constructor (url, options) {
-    options = options || {}
-
+  constructor (url, { fetch = defaultFetch } = {}) {
     this.url = url
-    this.fetch = options.fetch || fetch
+    this.fetch = fetch
   }
 
   parseResponse (response) {
-    const statusMatch = response.match(Gateway.statusRegExp)
-    const status = statusMatch[0]
-
-    let result = response.substr(status.length)
+    const [, status, message] = response.match(Gateway.statusRegExp) || []
 
     if (status === '{XC_SUC}') {
       try {
-        result = JSON.parse(result)
-      } catch (e) {}
-
-      return result
-    } else {
-      return Promise.reject(new Error(result))
+        return Promise.resolve(JSON.parse(message))
+      } catch (e) {
+        return Promise.reject(new Error(`can't parse response message: "${message}"`))
+      }
     }
+
+    if (status === '{XC_ERR}') {
+      return Promise.reject(new Error(message))
+    }
+
+    return Promise.reject(new Error(`can't handle response: "${response}"`))
   }
 
   sendCommand (command) {
-    const commandUrl = url.resolve(this.url, 'command?' + Gateway.buildQuery(command))
+    const commandUrl = url.resolve(this.url, `command?${Gateway.buildQuery(command)}`)
 
-    return this.fetch(commandUrl).then((res) => {
-      return res.text()
-    }).then((body) => {
-      return this.parseResponse(body)
-    })
+    return this.fetch(commandUrl).then(res => res.text()).then(body => this.parseResponse(body))
   }
 
   getStates () {
-    return this.sendCommand({
-      'XC_FNC': 'GetStates'
-    })
+    return this.sendCommand({ 'XC_FNC': 'GetStates' })
   }
 
   getState (id) {
-    return this.getStates().then((result) => {
-      return result.filter((status) => {
-        return status.adr === id
-      }).shift()
-    })
+    return this.getStates().then(result => result.filter(status => status.adr === id)[0])
   }
 
   sendIntertechnoSystemCode (family, device, action) {
@@ -71,12 +60,10 @@ class Gateway {
   }
 
   static buildQuery (parameters) {
-    return Object.keys(parameters).map((key) => {
-      return key + '=' + encodeURIComponent(parameters[key])
-    }).join('&')
+    return Object.entries(parameters).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
   }
 }
 
-Gateway.statusRegExp = new RegExp('{[A-Z,_]*}')
+Gateway.statusRegExp = new RegExp('({[A-Z,_]*})(.*)')
 
 module.exports = Gateway
