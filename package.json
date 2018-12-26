@@ -6,6 +6,9 @@
   "scripts": {
     "test": "standard && jest"
   },
+  "bin": {
+    "mediola": "bin/cli.js"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/bergos/mediola-aio-gateway.git"
@@ -20,6 +23,7 @@
   },
   "homepage": "https://github.com/bergos/mediola-aio-gateway",
   "dependencies": {
+    "commander": "^2.19.0",
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
