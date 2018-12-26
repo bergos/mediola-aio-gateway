@@ -11,6 +11,10 @@ class Gateway {
     const [, status, message] = response.match(Gateway.statusRegExp) || []
 
     if (status === '{XC_SUC}') {
+      if (message === '') {
+        return Promise.resolve(null)
+      }
+
       try {
         return Promise.resolve(JSON.parse(message))
       } catch (e) {

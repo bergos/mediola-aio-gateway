@@ -36,6 +36,12 @@ describe('Gateway', () => {
       expect(typeof gateway.parseResponse).toBe('function')
     })
 
+    test('returns null if the response is empty', () => {
+      const gateway = new Gateway()
+
+      return expect(gateway.parseResponse('{XC_SUC}')).resolves.toEqual(null)
+    })
+
     test('returns the response object on success', () => {
       const gateway = new Gateway()
 
@@ -88,18 +94,14 @@ describe('Gateway', () => {
       return gateway.sendCommand({
         'XC_FNC': 'GetStates'
       }).then(() => {
-        return expect(touched).toBe(true)
+        expect(touched).toBe(true)
       })
     })
 
     test('the response is parsed', () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
-          callback: () => {
-            return {
-              body: '{XC_SUC}{"test":"message"}'
-            }
-          }
+          body: '{XC_SUC}{"test":"message"}'
         }
       })
 
@@ -108,7 +110,7 @@ describe('Gateway', () => {
       return gateway.sendCommand({
         'XC_FNC': 'GetStates'
       }).then(result => {
-        return expect(result).toEqual({ test: 'message' })
+        expect(result).toEqual({ test: 'message' })
       })
     })
   })
@@ -138,25 +140,21 @@ describe('Gateway', () => {
       const gateway = new Gateway('http://localhost/', { fetch })
 
       return gateway.getStates().then(() => {
-        return expect(touched).toBe(true)
+        expect(touched).toBe(true)
       })
     })
 
     test('the response is parsed', () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
-          callback: () => {
-            return {
-              body: '{XC_SUC}{"test":"message"}'
-            }
-          }
+          body: '{XC_SUC}{"test":"message"}'
         }
       })
 
       const gateway = new Gateway('http://localhost/', { fetch })
 
       return gateway.getStates().then(result => {
-        return expect(result).toEqual({ test: 'message' })
+        expect(result).toEqual({ test: 'message' })
       })
     })
   })
@@ -186,25 +184,21 @@ describe('Gateway', () => {
       const gateway = new Gateway('http://localhost/', { fetch })
 
       return gateway.getState('abc').then(() => {
-        return expect(touched).toBe(true)
+        expect(touched).toBe(true)
       })
     })
 
     test('the response is parsed filtered by the given Id', () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
-          callback: () => {
-            return {
-              body: '{XC_SUC}[{"adr":"abc"}]'
-            }
-          }
+          body: '{XC_SUC}[{"adr":"abc"}]'
         }
       })
 
       const gateway = new Gateway('http://localhost/', { fetch })
 
       return gateway.getState('abc').then(result => {
-        return expect(result).toEqual({ adr: 'abc' })
+        expect(result).toEqual({ adr: 'abc' })
       })
     })
   })
