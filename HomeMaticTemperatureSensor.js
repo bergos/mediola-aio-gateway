@@ -8,13 +8,13 @@ class HomeMaticTemperatureSensor {
 
   get () {
     return this.gateway.getState(this.id).then((result) => {
-      const state = result.state.split(':')
-
-      if (state[2] === 0xff) {
-        return Promise.reject(new Error('timeout'))
+      if (!result) {
+        return null
       }
 
-      var temperature = parseInt(state[0], 16)
+      const [temperatureStr, humidityStr, statusStr] = result.state.split(':')
+
+      let temperature = parseInt(temperatureStr, 16)
 
       if (temperature & 0x4000) {
         temperature -= 0x8000
@@ -23,9 +23,9 @@ class HomeMaticTemperatureSensor {
       return {
         '@context': context,
         '@id': this.id,
-        lowBatteryPower: state[2] === 0xfe,
-        humidity: parseInt(state[1], 16),
-        temperature: temperature / 10.0
+        lowBatteryPower: parseInt(statusStr, 16) === 0xfe,
+        temperature: temperature / 10.0,
+        humidity: parseInt(humidityStr, 16)
       }
     })
   }
