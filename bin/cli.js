@@ -1,5 +1,6 @@
 const Gateway = require('../Gateway')
 const HomeMaticHeaterController = require('../HomeMaticHeaterController')
+const HomeMaticTemperatureSensor = require('../HomeMaticTemperatureSensor')
 
 const program = require('commander')
 
@@ -51,6 +52,19 @@ program
       }
 
       return heaterController.get()
+    }).then(states => {
+      console.log(JSON.stringify(states, null, ' '))
+    }).catch(err => console.error(err))
+  })
+
+program
+  .command('home-matic-temperature-sensor <url> <device>')
+  .action((url, device) => {
+    const gateway = new Gateway(url)
+    const sensor = new HomeMaticTemperatureSensor(gateway, device)
+
+    Promise.resolve().then(() => {
+      return sensor.get()
     }).then(states => {
       console.log(JSON.stringify(states, null, ' '))
     }).catch(err => console.error(err))
