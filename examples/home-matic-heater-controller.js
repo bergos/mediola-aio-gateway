@@ -1,10 +1,10 @@
-const Gateway = require('../Gateway')
-const HomeMaticHeaterController = require('../HomeMaticHeaterController')
+import Gateway from '../Gateway.js'
+import HomeMaticHeaterController from '../HomeMaticHeaterController.js'
 
-const gateway = new Gateway('http://192.168.1.24')
+const gateway = new Gateway('http://192.168.1.123')
 
 const heaterController = new HomeMaticHeaterController(gateway, '36D8E201')
 
-heaterController.status().then(result => {
+heaterController.get().then(result => {
   console.log(result)
 }).catch(err => console.error(err))

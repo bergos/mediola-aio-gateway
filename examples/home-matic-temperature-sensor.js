@@ -1,7 +1,7 @@
-const Gateway = require('../Gateway')
-const HomeMaticTemperatureSensor = require('../HomeMaticTemperatureSensor')
+import Gateway from '../Gateway.js'
+import HomeMaticTemperatureSensor from '../HomeMaticTemperatureSensor.js'
 
-const gateway = new Gateway('http://192.168.1.24')
+const gateway = new Gateway('http://192.168.1.123')
 
 const temperatureSensor = new HomeMaticTemperatureSensor(gateway, '30E0A401')
 

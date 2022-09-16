@@ -1,8 +1,8 @@
-const context = require('../context')
-const Gateway = require('../Gateway')
-const ElroPowerSocket = require('../ElroPowerSocket')
+import context from '../context.js'
+import ElroPowerSocket from '../ElroPowerSocket.js'
+import Gateway from '../Gateway.js'
 
-const gateway = new Gateway('http://192.168.1.24')
+const gateway = new Gateway('http://192.168.1.123')
 
 // address by family and device
 // let elro = new ElroPowerSocket(gateway, ElroPowerSocket.family0, ElroPowerSocket.deviceC)

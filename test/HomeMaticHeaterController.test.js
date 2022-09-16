@@ -1,41 +1,40 @@
-/* global describe, expect, test */
-
-const mochfetch = require('mockfetch')
-const Gateway = require('../Gateway')
-const HomeMaticHeaterController = require('../HomeMaticHeaterController')
+import { rejects, strictEqual } from 'assert'
+import { describe, it } from 'mocha'
+import mochfetch from 'mockfetch'
+import Gateway from '../Gateway.js'
+import HomeMaticHeaterController from '../HomeMaticHeaterController.js'
 
 describe('HomeMaticHeaterController', () => {
   describe('constructor', () => {
-    test('is a function', () => {
-      expect(typeof HomeMaticHeaterController).toBe('function')
+    it('should be a function', () => {
+      strictEqual(typeof HomeMaticHeaterController, 'function')
     })
 
-    test('gateway is assigned', () => {
+    it('should assign the given gateway', () => {
       const gateway = new Gateway('http://localhost/')
       const heaterController = new HomeMaticHeaterController(gateway)
 
-      expect(heaterController.gateway).toBe(gateway)
+      strictEqual(heaterController.gateway, gateway)
     })
 
-    test('id is assigned', () => {
+    it('should assign the given id', () => {
       const gateway = new Gateway('http://localhost/')
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      expect(heaterController.id).toBe('00000000')
+      strictEqual(heaterController.id, '00000000')
     })
   })
 
   describe('get', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway('http://localhost/')
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      expect(typeof heaterController.get).toBe('function')
+      strictEqual(typeof heaterController.get, 'function')
     })
 
-    test('GetStates command is called', () => {
+    it('should call the GetStates command', async () => {
       let touched = false
-
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           callback: () => {
@@ -47,100 +46,105 @@ describe('HomeMaticHeaterController', () => {
           }
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.get().then(() => {
-        expect(touched).toBe(true)
-      })
+      await heaterController.get()
+
+      strictEqual(touched, true)
     })
 
-    test('response has a context', () => {
+    it('should respond with a context', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'I:0:0000:0000:00:00' })}]`
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.get().then(result => {
-        expect(typeof result['@context']).toBe('object')
-      })
+      const result = await heaterController.get()
+
+      strictEqual(typeof result['@context'], 'object')
     })
 
-    test('response has a @id property', () => {
+    it('should respond with a @id property', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'I:0:0000:0000:00:00' })}]`
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.get().then(result => {
-        expect(typeof result['@id']).toBe('string')
-      })
+      const result = await heaterController.get()
+
+      strictEqual(typeof result['@id'], 'string')
     })
 
-    test('response heater controller properties', () => {
+    it('should respond with heater controller properties', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'I:0:0000:0000:00:00' })}]`
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.get().then(result => {
-        expect(typeof result.lowBatteryPower).toBe('boolean')
-        expect(typeof result.desiredTemperature).toBe('number')
-        expect(typeof result.temperature).toBe('number')
-        expect(typeof result.valve).toBe('number')
-      })
+      const result = await heaterController.get()
+
+      strictEqual(typeof result.lowBatteryPower, 'boolean')
+      strictEqual(typeof result.targetTemperature, 'number')
+      strictEqual(typeof result.temperature, 'number')
+      strictEqual(typeof result.valve, 'number')
     })
 
-    test('property values are parsed values of GetStates command response', () => {
+    it('should parse the response value', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'B:0:00C8:00BE:00:50' })}]`
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.get().then(result => {
-        expect(result.lowBatteryPower).toBe(true)
-        expect(result.desiredTemperature).toBe(20)
-        expect(result.temperature).toBe(19)
-        expect(result.valve).toBe(80)
-      })
+      const result = await heaterController.get()
+
+      strictEqual(result.lowBatteryPower, true)
+      strictEqual(result.targetTemperature, 20)
+      strictEqual(result.temperature, 19)
+      strictEqual(result.valve, 80)
     })
   })
 
   describe('put', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway('http://localhost/')
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      expect(typeof heaterController.put).toBe('function')
+      strictEqual(typeof heaterController.put, 'function')
     })
 
-    test('SendSC command is called', () => {
-      let touched = false
+    it('should throw an error if an invalid argument is given', async () => {
+      const gateway = new Gateway('http://localhost/')
+      const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
+      await rejects(async () => {
+        await heaterController.put({ targetTemperature: 'test' })
+      }, {
+        message: 'invalid argument: test'
+      })
+    })
+
+    it('should call the SendSC command', async () => {
+      let touched = false
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=SendSC&type=HM&data=000000001128': {
           callback: () => {
             touched = true
 
             return {
-              body: `{XC_SUC}`
+              body: '{XC_SUC}'
             }
           }
         },
@@ -148,71 +152,66 @@ describe('HomeMaticHeaterController', () => {
           body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'I:0:0000:0000:00:00' })}]`
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.put({ desiredTemperature: 20 }).then(() => {
-        expect(touched).toBe(true)
-      })
+      await heaterController.put({ targetTemperature: 20 })
+
+      strictEqual(touched, true)
     })
 
-    test('GetStates command is called for response', () => {
-      let touched = false
-
+    it('should return the response of the GetStates command', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=SendSC&type=HM&data=000000001128': {
-          body: `{XC_SUC}`
+          body: '{XC_SUC}'
         },
         'http://localhost/command?XC_FNC=GetStates': {
           callback: () => {
-            touched = true
-
             return {
-              body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'I:0:0000:0000:00:00' })}]`
+              body: `{XC_SUC}[${JSON.stringify({ type: 'HMFHT', adr: '00000000', state: 'B:0:00C8:00BE:00:50' })}]`
             }
           }
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.put({ desiredTemperature: 20 }).then(() => {
-        expect(touched).toBe(true)
-      })
+      const result = await heaterController.put({ targetTemperature: 20 })
+
+      strictEqual(result.lowBatteryPower, true)
+      strictEqual(result.targetTemperature, 20)
+      strictEqual(result.temperature, 19)
+      strictEqual(result.valve, 80)
     })
   })
 
   describe('delete', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway('http://localhost/')
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      expect(typeof heaterController.delete).toBe('function')
+      strictEqual(typeof heaterController.delete, 'function')
     })
 
-    test('DelSensor command is called', () => {
+    it('should call the DelSensor command', async () => {
       let touched = false
-
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=DelSensor&type=HMFHT&adr=00000000': {
           callback: () => {
             touched = true
 
             return {
-              body: `{XC_SUC}`
+              body: '{XC_SUC}'
             }
           }
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
       const heaterController = new HomeMaticHeaterController(gateway, '00000000')
 
-      return heaterController.delete().then(() => {
-        expect(touched).toBe(true)
-      })
+      await heaterController.delete()
+
+      strictEqual(touched, true)
     })
   })
 })

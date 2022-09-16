@@ -1,4 +1,4 @@
-const context = require('./context')
+import context from './context.js'
 
 class HomeMaticTemperatureSensor {
   constructor (gateway, id) {
@@ -6,29 +6,29 @@ class HomeMaticTemperatureSensor {
     this.id = id
   }
 
-  get () {
-    return this.gateway.getState(this.id).then((result) => {
-      if (!result) {
-        return null
-      }
+  async get () {
+    const result = await this.gateway.getState(this.id)
 
-      const [temperatureStr, humidityStr, statusStr] = result.state.split(':')
+    if (!result) {
+      return null
+    }
 
-      let temperature = parseInt(temperatureStr, 16)
+    const [temperatureStr, humidityStr, statusStr] = result.state.split(':')
 
-      if (temperature & 0x4000) {
-        temperature -= 0x8000
-      }
+    let temperature = parseInt(temperatureStr, 16)
 
-      return {
-        '@context': context,
-        '@id': this.id,
-        lowBatteryPower: parseInt(statusStr, 16) === 0xfe,
-        temperature: temperature / 10.0,
-        humidity: parseInt(humidityStr, 16)
-      }
-    })
+    if (temperature & 0x4000) {
+      temperature -= 0x8000
+    }
+
+    return {
+      '@context': context,
+      '@id': this.id,
+      lowBatteryPower: parseInt(statusStr, 16) === 0xfe,
+      temperature: temperature / 10.0,
+      humidity: parseInt(humidityStr, 16)
+    }
   }
 }
 
-module.exports = HomeMaticTemperatureSensor
+export default HomeMaticTemperatureSensor

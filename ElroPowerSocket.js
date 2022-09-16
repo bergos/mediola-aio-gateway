@@ -1,4 +1,4 @@
-const context = require('./context')
+import context from './context.js'
 
 class ElroPowerSocket {
   constructor (gateway) {
@@ -11,7 +11,7 @@ class ElroPowerSocket {
     }
   }
 
-  put (input) {
+  async put (input) {
     let command = -1
 
     if (input.state === context.On) {
@@ -60,4 +60,4 @@ ElroPowerSocket.deviceC = parseInt('11011', 2)
 ElroPowerSocket.deviceD = parseInt('11101', 2)
 ElroPowerSocket.deviceE = parseInt('11110', 2)
 
-module.exports = ElroPowerSocket
+export default ElroPowerSocket

@@ -1,7 +1,7 @@
 const context = {
   On: 'http://ns.bergnet.org/dark-horse#On',
   Off: 'http://ns.bergnet.org/dark-horse#Off',
-  desiredTemperature: 'http://ns.bergnet.org/dark-horse#desiredTemperature',
+  targetTemperature: 'http://ns.bergnet.org/dark-horse#targetTemperature',
   humidity: 'http://ns.bergnet.org/dark-horse#humidity',
   lowBatteryPower: 'http://ns.bergnet.org/dark-horse#lowBatteryPower',
   state: {
@@ -12,4 +12,4 @@ const context = {
   valve: 'http://ns.bergnet.org/dark-horse#valve'
 }
 
-module.exports = context
+export default context
