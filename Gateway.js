@@ -1,5 +1,6 @@
-const defaultFetch = require('isomorphic-fetch')
-const url = require('url')
+import defaultFetch from 'nodeify-fetch'
+
+const statusRegExp = /({[A-Z,_]*})(.*)/
 
 class Gateway {
   constructor (url, { fetch = defaultFetch } = {}) {
@@ -8,66 +9,71 @@ class Gateway {
   }
 
   parseResponse (response) {
-    const [, status, message] = response.match(Gateway.statusRegExp) || []
+    const [, status, message] = response.match(statusRegExp) || []
 
     if (status === '{XC_SUC}') {
       if (message === '') {
-        return Promise.resolve(null)
+        return null
       }
 
       try {
-        return Promise.resolve(JSON.parse(message))
+        return JSON.parse(message)
       } catch (e) {
-        return Promise.reject(new Error(`can't parse response message: "${message}"`))
+        throw new Error(`can't parse response message: "${message}"`)
       }
     }
 
     if (status === '{XC_ERR}') {
-      return Promise.reject(new Error(message))
+      throw new Error(message)
     }
 
-    return Promise.reject(new Error(`can't handle response: "${response}"`))
+    throw new Error(`can't handle response: "${response}"`)
   }
 
-  sendCommand (command) {
-    const commandUrl = url.resolve(this.url, `command?${Gateway.buildQuery(command)}`)
+  async sendCommand (command) {
+    const commandUrl = new URL(`command?${Gateway.buildQuery(command)}`, this.url)
 
-    return this.fetch(commandUrl).then(res => res.text()).then(body => this.parseResponse(body))
+    const res = await this.fetch(commandUrl)
+    const body = await res.text()
+
+    return this.parseResponse(body)
   }
 
-  getStates () {
-    return this.sendCommand({ 'XC_FNC': 'GetStates' })
+  async getStates () {
+    return this.sendCommand({ XC_FNC: 'GetStates' })
   }
 
-  getState (id) {
-    return this.getStates().then(result => result.filter(status => status.adr === id)[0])
+  async getState (id) {
+    const states = await this.getStates()
+
+    return states.find(state => state.adr === id)
   }
 
-  sendIntertechnoSystemCode (family, device, action) {
+  async sendIntertechnoSystemCode (family, device, action) {
     return this.sendCommand({
-      'XC_FNC': 'SendSC',
-      'type': 'IT',
-      'data': family.toString(16) + device.toString(16) + action.toString(16)
+      XC_FNC: 'SendSC',
+      type: 'IT',
+      data: family.toString(16) + device.toString(16) + action.toString(16)
     })
   }
 
-  sendMediolaCode (code, sender) {
+  async sendMediolaCode (code, sender) {
     code = code.toString('hex')
     sender = sender || '01'
 
     return this.sendCommand({
-      'XC_FNC': 'Send2',
-      'type': 'CODE',
-      'ir': sender,
-      'code': code
+      XC_FNC: 'Send2',
+      type: 'CODE',
+      ir: sender,
+      code: code
     })
   }
 
   static buildQuery (parameters) {
-    return Object.entries(parameters).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')
+    return Object.entries(parameters)
+      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+      .join('&')
   }
 }
 
-Gateway.statusRegExp = new RegExp('({[A-Z,_]*})(.*)')
-
-module.exports = Gateway
+export default Gateway

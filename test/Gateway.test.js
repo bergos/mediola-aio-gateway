@@ -1,82 +1,97 @@
-/* global describe, expect, test */
-
-const mochfetch = require('mockfetch')
-const Gateway = require('../Gateway')
+import { deepStrictEqual, rejects, strictEqual } from 'assert'
+import { describe, it } from 'mocha'
+import mochfetch from 'mockfetch'
+import Gateway from '../Gateway.js'
 
 describe('Gateway', () => {
   describe('constructor', () => {
-    test('is a function', () => {
-      expect(typeof Gateway).toBe('function')
+    it('should be a function', () => {
+      strictEqual(typeof Gateway, 'function')
     })
 
-    test('url is assigned', () => {
+    it('should assign the given url', () => {
       const gateway = new Gateway('http://localhost/')
 
-      expect(gateway.url).toBe('http://localhost/')
+      strictEqual(gateway.url, 'http://localhost/')
     })
 
-    test('custom fetch is assigned', () => {
+    it('should assign the given custom fetch', () => {
       const fetch = {}
       const gateway = new Gateway(null, { fetch })
 
-      expect(gateway.fetch).toBe(fetch)
+      strictEqual(gateway.fetch, fetch)
     })
 
-    test('default fetch is assigned if no custom fetch is given', () => {
+    it('should assign the default fetch if no custom fetch is given', () => {
       const gateway = new Gateway()
 
-      expect(typeof gateway.fetch).toBe('function')
+      strictEqual(typeof gateway.fetch, 'function')
     })
   })
 
   describe('parseResponse', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway()
 
-      expect(typeof gateway.parseResponse).toBe('function')
+      strictEqual(typeof gateway.parseResponse, 'function')
     })
 
-    test('returns null if the response is empty', () => {
+    it('should return null if the response is empty', async () => {
       const gateway = new Gateway()
 
-      return expect(gateway.parseResponse('{XC_SUC}')).resolves.toEqual(null)
+      const result = await gateway.parseResponse('{XC_SUC}')
+
+      strictEqual(result, null)
     })
 
-    test('returns the response object on success', () => {
+    it('should return the response object on success', async () => {
       const gateway = new Gateway()
 
-      return expect(gateway.parseResponse('{XC_SUC}{"test":"message"}')).resolves.toEqual({ test: 'message' })
+      const result = await gateway.parseResponse('{XC_SUC}{"test":"message"}')
+
+      return deepStrictEqual(result, { test: 'message' })
     })
 
-    test('returns an error if the response is not parsable', () => {
+    it('should throw an error if the response is not parsable', async () => {
       const gateway = new Gateway()
 
-      return expect(gateway.parseResponse('{XC_SUC}test message')).rejects.toThrow('can\'t parse response message: "test message"')
+      await rejects(async () => {
+        await gateway.parseResponse('{XC_SUC}test message')
+      }, {
+        message: 'can\'t parse response message: "test message"'
+      })
     })
 
-    test('returns an error on error response', () => {
+    it('should throw an error on error response', async () => {
       const gateway = new Gateway()
 
-      return expect(gateway.parseResponse('{XC_ERR}test message')).rejects.toThrow('test message')
+      await rejects(async () => {
+        await gateway.parseResponse('{XC_ERR}test message')
+      }, {
+        message: 'test message'
+      })
     })
 
-    test('returns an error response parse error', () => {
+    it('should throw an error on parse error', async () => {
       const gateway = new Gateway()
 
-      return expect(gateway.parseResponse('test message')).rejects.toThrow('can\'t handle response: "test message"')
+      await rejects(async () => {
+        await gateway.parseResponse('test message')
+      }, {
+        message: 'can\'t handle response: "test message"'
+      })
     })
   })
 
   describe('sendCommand', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway()
 
-      expect(typeof gateway.sendCommand).toBe('function')
+      strictEqual(typeof gateway.sendCommand, 'function')
     })
 
-    test('the command URL is called', () => {
+    it('should call the command URL', async () => {
       let touched = false
-
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           callback: () => {
@@ -88,43 +103,36 @@ describe('Gateway', () => {
           }
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
 
-      return gateway.sendCommand({
-        'XC_FNC': 'GetStates'
-      }).then(() => {
-        expect(touched).toBe(true)
-      })
+      await gateway.sendCommand({ XC_FNC: 'GetStates' })
+
+      strictEqual(touched, true)
     })
 
-    test('the response is parsed', () => {
+    it('should parse the response', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: '{XC_SUC}{"test":"message"}'
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
 
-      return gateway.sendCommand({
-        'XC_FNC': 'GetStates'
-      }).then(result => {
-        expect(result).toEqual({ test: 'message' })
-      })
+      const result = await gateway.sendCommand({ XC_FNC: 'GetStates' })
+
+      deepStrictEqual(result, { test: 'message' })
     })
   })
 
   describe('getStates', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway()
 
-      expect(typeof gateway.getStates).toBe('function')
+      strictEqual(typeof gateway.getStates, 'function')
     })
 
-    test('the GetStates command is called', () => {
+    it('should call the GetStates command', async () => {
       let touched = false
-
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           callback: () => {
@@ -136,39 +144,36 @@ describe('Gateway', () => {
           }
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
 
-      return gateway.getStates().then(() => {
-        expect(touched).toBe(true)
-      })
+      await gateway.getStates()
+
+      strictEqual(touched, true)
     })
 
-    test('the response is parsed', () => {
+    it('should parse the response', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: '{XC_SUC}{"test":"message"}'
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
 
-      return gateway.getStates().then(result => {
-        expect(result).toEqual({ test: 'message' })
-      })
+      const result = await gateway.getStates()
+
+      deepStrictEqual(result, { test: 'message' })
     })
   })
 
   describe('getState', () => {
-    test('is a function', () => {
+    it('should be a function', () => {
       const gateway = new Gateway()
 
-      expect(typeof gateway.getState).toBe('function')
+      strictEqual(typeof gateway.getState, 'function')
     })
 
-    test('the GetStates command is called', () => {
+    it('should call the GetStates command', async () => {
       let touched = false
-
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           callback: () => {
@@ -180,26 +185,24 @@ describe('Gateway', () => {
           }
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
 
-      return gateway.getState('abc').then(() => {
-        expect(touched).toBe(true)
-      })
+      await gateway.getState('abc')
+
+      strictEqual(touched, true)
     })
 
-    test('the response is parsed filtered by the given Id', () => {
+    it('should parse and filter the response by the given Id', async () => {
       const fetch = mochfetch({
         'http://localhost/command?XC_FNC=GetStates': {
           body: '{XC_SUC}[{"adr":"abc"}]'
         }
       })
-
       const gateway = new Gateway('http://localhost/', { fetch })
 
-      return gateway.getState('abc').then(result => {
-        expect(result).toEqual({ adr: 'abc' })
-      })
+      const result = await gateway.getState('abc')
+
+      deepStrictEqual(result, { adr: 'abc' })
     })
   })
 })

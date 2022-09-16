@@ -1,4 +1,4 @@
-const context = require('./context')
+import context from './context.js'
 
 class HomeMaticHeaterController {
   constructor (gateway, id) {
@@ -6,48 +6,46 @@ class HomeMaticHeaterController {
     this.id = id
   }
 
-  get () {
-    return this.gateway.getState(this.id).then(result => {
-      if (!result) {
-        return null
-      }
+  async get () {
+    const result = await this.gateway.getState(this.id)
 
-      const [lowBatteryPowerStr,, desiredTemperatureStr, temperatureStr,, valveStr] = result.state.split(':')
+    if (!result) {
+      return null
+    }
 
-      return {
-        '@context': context,
-        '@id': result.adr,
-        lowBatteryPower: lowBatteryPowerStr === 'B',
-        desiredTemperature: parseInt(desiredTemperatureStr, 16) / 10.0,
-        temperature: parseInt(temperatureStr, 16) / 10.0,
-        valve: parseInt(valveStr, 16)
-      }
-    })
+    const [lowBatteryPowerStr,, targetTemperatureStr, temperatureStr,, valveStr] = result.state.split(':')
+
+    return {
+      '@context': context,
+      '@id': result.adr,
+      lowBatteryPower: lowBatteryPowerStr === 'B',
+      targetTemperature: parseInt(targetTemperatureStr, 16) / 10.0,
+      temperature: parseInt(temperatureStr, 16) / 10.0,
+      valve: parseInt(valveStr, 16)
+    }
   }
 
-  put (input) {
-    return Promise.resolve().then(() => {
-      if (typeof input.desiredTemperature !== 'number') {
-        return Promise.resolve()
-      }
+  async put (input) {
+    if (typeof input.targetTemperature !== 'number') {
+      throw new Error(`invalid argument: ${input && input.targetTemperature}`)
+    }
 
-      return this.gateway.sendCommand({
-        'XC_FNC': 'SendSC',
-        'type': 'HM',
-        'data': `${this.id}11${(input.desiredTemperature * 2).toString(16).toUpperCase()}`
-      })
-    }).then(() => {
-      return this.get()
+    await this.gateway.sendCommand({
+      XC_FNC: 'SendSC',
+      type: 'HM',
+      data: `${this.id}11${(input.targetTemperature * 2).toString(16).toUpperCase()}`
     })
+
+    return this.get()
   }
 
-  delete () {
+  async delete () {
     return this.gateway.sendCommand({
-      'XC_FNC': 'DelSensor',
-      'type': 'HMFHT',
-      'adr': this.id
+      XC_FNC: 'DelSensor',
+      type: 'HMFHT',
+      adr: this.id
     })
   }
 }
 
-module.exports = HomeMaticHeaterController
+export default HomeMaticHeaterController
